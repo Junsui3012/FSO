@@ -7,10 +7,26 @@ sequenceDiagram
 
     user->>browser: Sending message
 
-    browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
-    
+    browser->>server: GET https://fullstack-exampleapp.herokuapp.com/spa
     activate server
-    server-->>browser: {content: "i hate having fun", date: "2026-10-02T09:56:19.682Z"}
+    server-->>browser: HTML document
+    deactivate server
+
+    browser->>server: GET https://fullstack-exampleapp.herokuapp.com/main.css
+    activate server
+    server-->>browser: CSS file
+    deactivate server
+
+    browser->server: GET https://fullstack-exampleapp.herokuapp.com/spa.js
+    activate server
+    server->>browser: JS file
+    deactivate server
+
+    Note right of browser: The browser starts executing the js code and fetches the JSON from the server.
+
+    browser->>server: GET https://studies.cs.helsinki.fi/exampleapp/data.json
+    activate server
+    server-->>browser: [{ "content": "I hate having fun", "date": "2026-10-1" }, ... ]
     deactivate server
 
     Note right of browser: The browser executes the callback function to render the notes.
