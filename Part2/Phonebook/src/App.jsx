@@ -1,15 +1,24 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import NewNumberForm from "./NewNumberForm"
 import DisplayList from "./DisplayList"
 import Filter from "./Filter"
 
 const App = () => {
-  const [numberList, setNumberList] = useState([
-    { id: 1, name: "Adrian", number: "+89-7346731849" },
-    { id: 2, name: "Drake", number: "+89-7320013439" },
-    { id: 3, name: "Rihanna", number: "+89-1204781849" },
-  ])
+  const [numberList, setNumberList] = useState([])
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    const url = "http://localhost:3001/persons"
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+        return response.json()       
+      })
+      .then(data => {
+        setNumberList(data)
+      })
+      .catch(err => alert(`Error encountered ${err.message}`))
+  }, [])
 
   const handleListUpdate = (newEntry) => {
     setNumberList([...numberList, newEntry])
