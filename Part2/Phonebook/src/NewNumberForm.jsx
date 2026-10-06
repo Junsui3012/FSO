@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const NewNumberForm = ({ handleListUpdate, numberList }) => {
+const NewNumberForm = ({ handleListUpdate }) => {
 
   const [name, setName] = useState("")
   const [number, setNumber] = useState("")
@@ -10,26 +10,20 @@ const NewNumberForm = ({ handleListUpdate, numberList }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-
-    const newName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
-
-    if (name === "" || number === "") {
+    const trimmedName = name.trim()
+    const trimmedNumber = number.trim()
+    if (trimmedName === "" || trimmedNumber === "") {
       alert("Missing fields")
       return
     }
-    else if (numberList.map(val => val.name).includes(newName)) {
-      alert("Name already exists")
-      return
-    }
 
+    const cleanName = trimmedName.charAt(0).toUpperCase() + trimmedName.slice(1).toLowerCase()
     handleListUpdate({
-      id: numberList.length + 1,
-      name: newName,
-      number,
+      name: cleanName,
+      number: trimmedNumber,
     })
     setName("")
     setNumber("")
-    alert("Successfully added new entry")
   }
 
   return (

@@ -1,19 +1,20 @@
 {
-    "persons": [
-        {
-            "id": 1,
-            "name": "Adrian",
-            "number": "+89-7346731849"
-        },
-        {
-            "id": 2,
-            "name": "Drake",
-            "number": "+89-7320013439"
-        },
-        {
-            "id": 3,
-            "name": "Rihanna",
-            "number": "+89-1204781849"
-        }
-    ]
+  "persons": [
+    {
+      "id": "1",
+      "name": "Adrian",
+      "number": "+67-6767676767"
+    },
+    {
+      "id": "2",
+      "name": "Drake",
+      "number": "+89-7320013439"
+    },
+    {
+      "name": "Betty",
+      "number": "+89-3434343434",
+      "id": "iFVDm2Dlxgs"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }
