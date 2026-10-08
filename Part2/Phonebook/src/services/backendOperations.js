@@ -4,7 +4,11 @@ const base_url = "http://localhost:3001/persons"
 const getAllNumbers = () => {
     return fetch(base_url)
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+            if (!response.ok) {
+                const err = new Error(`${response.status} ${response.statusText}`)
+                err.status = response.status
+                throw err
+            }
             return response.json()
         })
 }
@@ -18,7 +22,11 @@ const createNewNumber = (dataObj) => {
         body: JSON.stringify(dataObj)
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+            if (!response.ok) {
+                const err = new Error(`${response.status} ${response.statusText}`)
+                err.status = response.status
+                throw err
+            }
             return response.json()
         })
 }
@@ -28,7 +36,11 @@ const deleteNumber = (id) => {
         method: "DELETE",
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+            if (!response.ok) {
+                const err = new Error(`${response.status} ${response.statusText}`)
+                err.status = response.status
+                throw err
+            }
             return response.json()
         })
 }
@@ -42,7 +54,11 @@ const updateNumber = (id, dataObj) => {
         body: JSON.stringify(dataObj)
     })
         .then(response => {
-            if (!response.ok) throw new Error(`${response.status} ${response.statusText}`)
+            if (!response.ok) {
+                const err = new Error(`${response.status} ${response.statusText}`)
+                err.status = response.status
+                throw err
+            }
             return response.json()
         })
 }

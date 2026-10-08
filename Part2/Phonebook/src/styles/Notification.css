@@ -1,0 +1,20 @@
+.success_box {
+    font-weight: bold;
+    border: 3px solid green;
+    border-radius: 5px;
+    color: green;
+    background-color: lightgray;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: large;
+}
+.error_box {
+    font-weight: bold;
+    border: 3px solid red;
+    border-radius: 5px;
+    color: red;
+    background-color: lightgray;
+    padding: 8px;
+    margin-bottom: 10px;
+    font-size: large;
+}
