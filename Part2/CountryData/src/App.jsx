@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
-import Countries from "./components/Countries";
-import Notification from "./components/Notification";
+import { useState, useEffect, useRef } from "react"
+import Countries from "./components/Countries"
+import Notification from "./components/Notification"
 
 const App = () => {
   const [countryList, setCountryList] = useState([])

@@ -4,7 +4,8 @@
     color: red;
     background-color: lightgray;
     border: 4px solid red;
-    padding: 10px;
+    padding: 6px;
+    margin-bottom: 10px;
 }
 .empty_box {
     display: none;

@@ -1,7 +1,10 @@
+import { useRef } from "react"
 import ExpandedCountryInfo from "./ExpandedCountryInfo"
-
+import CountryOptions from "./CountryOptions"
 
 const Display = ({ displayList, notify }) => {
+
+  const renderId = useRef(0)
 
   const listLength = displayList.length
 
@@ -18,13 +21,12 @@ const Display = ({ displayList, notify }) => {
   else if (listLength === 1) return (
     <ExpandedCountryInfo data={displayList[0]} notify={notify} />
   )
-  else return (
-    <div>
-      {displayList.map(val => (
-        <p key={val.key_id}>{val.name.common}</p>
-      ))}
-    </div>
-  )
+  else {
+    renderId.current += 1
+    return (
+      <CountryOptions key={renderId.current} displayList={displayList} notify={notify} />
+    )
+  }
 }
 
 export default Display
