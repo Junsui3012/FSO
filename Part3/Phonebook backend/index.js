@@ -1,4 +1,6 @@
 import express from "express"
+import morgan from "morgan"
+import cors from "cors"
 
 const NOTES = [
     {
@@ -30,9 +32,13 @@ const generateID = () => {
 }
 
 const app = express()
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 
+morgan.token("body-content", (req, res) => { return JSON.stringify(req.body) })
+
+app.use(cors())
 app.use(express.json())
+app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body-content"))
 
 app.get('/', (req, res) => {
     res.send("<h1>Hello world</h1>").end()
@@ -86,11 +92,26 @@ app.delete('/api/persons/:id', (req, res) => {
     const matchIndex = NOTES.findIndex(val => val.id == id)
     if (!matchIndex) return res.status(404).json({ status: "error", message: "Record not found" }).end()
 
-    // const deleted_data = NOTES[matchIndex]
+    const deleted_data = NOTES[matchIndex]
     NOTES.splice(matchIndex, 1)
 
-    // return res.send(deleted_data).end()
-    return res.status(204).end()
+    return res.send(deleted_data).end()
+    // return res.status(204).end()
+})
+
+app.patch('/api/persons/:id', (req, res) => {
+    const id = Number(req.params.id)
+    if (!id) return res.status(400).json({ status: "error", message: "Incorrect ID" }).end()
+
+    const data = req.body
+    const number = data.number.trim()
+    if (!number) return res.status(400).json({ status: "error", message: "Missing data" }).end()
+
+    const matchIndex = NOTES.findIndex(val => val.id == id)
+    if (!matchIndex) return res.status(404).json({ status: "error", message: "Record not found" }).end()
+
+    NOTES[matchIndex].number = number
+    return res.status(200).json(NOTES[matchIndex]).end()
 })
 
 const UnknownEndpoint = (req, res) => {
