@@ -1,5 +1,5 @@
 
-const base_url = "http://localhost:3001/persons"
+const base_url = import.meta.env.VITE_RENDER_URL || "http://localhost:3001/persons"
 
 const getAllNumbers = () => {
     return fetch(base_url)
