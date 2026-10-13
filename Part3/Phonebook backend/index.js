@@ -32,6 +32,7 @@ const generateID = () => {
 }
 
 const app = express()
+const HOST = process.env.HOST || "0.0.0.0"
 const PORT = process.env.PORT || 3001
 
 morgan.token("body-content", (req, res) => { return JSON.stringify(req.body) })
@@ -119,6 +120,6 @@ const UnknownEndpoint = (req, res) => {
 }
 app.use(UnknownEndpoint)
 
-app.listen(PORT, "localhost", () => {
-    console.log(`Server running at http://localhost:${PORT}/`)
+app.listen(PORT, HOST, () => {
+    console.log(`Server running at http://${HOST}:${PORT}/`)
 })
