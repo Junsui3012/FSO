@@ -37,7 +37,9 @@ const PORT = process.env.PORT || 3001
 
 morgan.token("body-content", (req, res) => { return JSON.stringify(req.body) })
 
-app.use(cors())
+app.use(express.static('dist'))
+// CORS can be removed now that the frontend is hosted from the same domain
+// app.use(cors())
 app.use(express.json())
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body-content"))
 
@@ -91,7 +93,7 @@ app.delete('/api/persons/:id', (req, res) => {
     if (!id) return res.status(400).json({ status: "error", message: "Incorrect ID" }).end()
 
     const matchIndex = NOTES.findIndex(val => val.id == id)
-    if (!matchIndex) return res.status(404).json({ status: "error", message: "Record not found" }).end()
+    if (matchIndex === -1) return res.status(404).json({ status: "error", message: "Record not found" }).end()
 
     const deleted_data = NOTES[matchIndex]
     NOTES.splice(matchIndex, 1)
@@ -109,7 +111,7 @@ app.patch('/api/persons/:id', (req, res) => {
     if (!number) return res.status(400).json({ status: "error", message: "Missing data" }).end()
 
     const matchIndex = NOTES.findIndex(val => val.id == id)
-    if (!matchIndex) return res.status(404).json({ status: "error", message: "Record not found" }).end()
+    if (matchIndex === -1) return res.status(404).json({ status: "error", message: "Record not found" }).end()
 
     NOTES[matchIndex].number = number
     return res.status(200).json(NOTES[matchIndex]).end()
