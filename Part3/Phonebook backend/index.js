@@ -1,35 +1,8 @@
 import express from "express"
 import morgan from "morgan"
 // import cors from "cors"
-
-const NOTES = [
-    {
-        name: "Adrian",
-        number: "+67-6767676767",
-        id: "1",
-    },
-    {
-        name: "Drake",
-        number: "+89-7320013439",
-        id: "2",
-    },
-    {
-        name: "Betty",
-        number: "+12-3434343434",
-        id: "3",
-    }
-]
-
-const generateID = () => {
-    const increment = NOTES.reduce((max, curr) => {
-        const currID = Number(curr.id)
-        if (currID > max) return currID
-        return max
-    }, 0)
-
-    const RandNum = Math.floor(Math.random() * 100_000)
-    return String(increment + RandNum)
-}
+import Entry from "./models/EntryModel.js"
+import mongoose from "mongoose"
 
 const app = express()
 const HOST = process.env.HOST || "0.0.0.0"
@@ -43,84 +16,114 @@ app.use(express.static('dist'))
 app.use(express.json())
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body-content"))
 
+app.param("id", async (req, res, next, id) => {
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ status: "error", message: "ID validation failed" })
+    const doc = await Entry.findById(id)
+    if (!doc) return res.status(404).json({ status: "error", message: "Record not found" })
+    req.entry = doc
+    next()
+})
+
 app.get('/', (req, res) => {
-    res.send("<h1>Hello world</h1>").end()
+    res.send("<h1>Hello world</h1>")
 })
 
-app.get('/info', (req, res) => {
-    const len = NOTES.length
+app.get('/info', async (req, res, next) => {
+    try {
+        const result = await Entry.find({})
+        const len = result.length
 
-    const text = `<p>Phonebook has info for ${len} people</p>
-    <p>${new Date().toString()}</p>`
-    return res.send(text).end()
-})
-
-app.get('/api/persons', (req, res) => {
-    return res.status(200).json(NOTES).end()
-})
-
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    if (!id) return res.status(400).json({ status: "error", message: "Incorrect ID" }).end()
-
-    const matchEntry = NOTES.find(val => val.id == id)
-    if (!matchEntry) return res.status(404).json({ status: "error", message: "Record not found" }).end()
-
-    return res.json(matchEntry).end()
-})
-
-app.post('/api/persons', (req, res) => {
-    const data = req.body
-    const name = data.name.trim().toLowerCase()
-    const number = data.number.trim()
-    if (!name || !number) return res.status(400).json({ status: "error", message: "Missing data" }).end()
-
-    if (NOTES.find(val => val.name.toLowerCase() === name)) return res.status(409).json({ status: "error", message: `${name} already exists in records` }).end()
-
-    const id = generateID()
-    const newEntry = {
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        number,
-        id,
+        const text = `<p>Phonebook has info for ${len} people</p>
+        <p>${new Date().toString()}</p>`
+        return res.send(text)
     }
-
-    NOTES.push(newEntry)
-    return res.status(201).json(newEntry).end()
+    catch (err) {
+        next(err)
+    }
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    if (!id) return res.status(400).json({ status: "error", message: "Incorrect ID" }).end()
-
-    const matchIndex = NOTES.findIndex(val => val.id == id)
-    if (matchIndex === -1) return res.status(404).json({ status: "error", message: "Record not found" }).end()
-
-    const deleted_data = NOTES[matchIndex]
-    NOTES.splice(matchIndex, 1)
-
-    return res.send(deleted_data).end()
-    // return res.status(204).end()
+app.get('/api/persons', async (req, res, next) => {
+    try {
+        const result = await Entry.find({})
+        return res.json(result)
+    }
+    catch (err) {
+        next(err)
+    }
 })
 
-app.patch('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    if (!id) return res.status(400).json({ status: "error", message: "Incorrect ID" }).end()
+app.get('/api/persons/:id', async (req, res, next) => {
+    try {
+        const result = req.entry
+        return res.json(result)
+    }
+    catch (err) {
+        next(err)
+    }
+})
 
-    const data = req.body
-    const number = data.number.trim()
-    if (!number) return res.status(400).json({ status: "error", message: "Missing data" }).end()
+app.post('/api/persons', async (req, res, next) => {
+    const name = req.body?.name?.trim().toLowerCase()
+    const number = req.body?.number?.trim()
+    if (!name || !number) return res.status(400).json({ status: "error", message: "Missing data" })
 
-    const matchIndex = NOTES.findIndex(val => val.id == id)
-    if (matchIndex === -1) return res.status(404).json({ status: "error", message: "Record not found" }).end()
+    try {
+        const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1)
+        const exists = await Entry.exists({ name: capitalizedName })
+        if (exists) return res.status(409).json({ status: "error", message: `${capitalizedName} already exists in records` })
 
-    NOTES[matchIndex].number = number
-    return res.status(200).json(NOTES[matchIndex]).end()
+        const newEntry = new Entry({
+            name: capitalizedName,
+            number,
+        })
+
+        const result = await newEntry.save()
+        return res.status(201).json(result)
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+app.delete('/api/persons/:id', async (req, res, next) => {
+    try {
+        const doc = req.entry
+        if (!doc) return res.status(404).json({ status: "error", message: "Record not found" })
+
+        await doc.deleteOne()
+
+        return res.json(doc)
+        // return res.status(204).end()
+    }
+    catch (err) {
+        next(err)
+    }
+})
+
+app.patch('/api/persons/:id', async (req, res, next) => {
+    try {
+        const number = req.body?.number?.trim()
+        if (!number) return res.status(400).json({ status: "error", message: "Missing data" })
+
+        const doc = req.entry
+        doc.number = number
+        await doc.save()
+        return res.json(doc)
+    }
+    catch (err) {
+        next(err)
+    }
 })
 
 const UnknownEndpoint = (req, res) => {
     return res.status(404).json({ status: "error", message: "Unknown Endpoint" })
 }
 app.use(UnknownEndpoint)
+
+const errorHandler = (err, req, res, next) => {
+    return res.status(500).json({ status: "error", message: `Server error : ${err.message}` })
+}
+app.use(errorHandler)
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running at http://${HOST}:${PORT}/`)
