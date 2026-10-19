@@ -65,10 +65,9 @@ app.get('/api/persons/:id', async (req, res, next) => {
 app.post('/api/persons', async (req, res, next) => {
     const name = req.body?.name?.trim().toLowerCase()
     const number = req.body?.number?.trim()
-    if (!name || !number) return res.status(400).json({ status: "error", message: "Missing data" })
 
     try {
-        const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1)
+        const capitalizedName = name?.charAt(0).toUpperCase().concat(name?.slice(1))
         const exists = await Entry.exists({ name: capitalizedName })
         if (exists) return res.status(409).json({ status: "error", message: `${capitalizedName} already exists in records` })
 
@@ -88,10 +87,7 @@ app.post('/api/persons', async (req, res, next) => {
 app.delete('/api/persons/:id', async (req, res, next) => {
     try {
         const doc = req.entry
-        if (!doc) return res.status(404).json({ status: "error", message: "Record not found" })
-
         await doc.deleteOne()
-
         return res.json(doc)
         // return res.status(204).end()
     }
@@ -103,8 +99,6 @@ app.delete('/api/persons/:id', async (req, res, next) => {
 app.patch('/api/persons/:id', async (req, res, next) => {
     try {
         const number = req.body?.number?.trim()
-        if (!number) return res.status(400).json({ status: "error", message: "Missing data" })
-
         const doc = req.entry
         doc.number = number
         await doc.save()
@@ -121,6 +115,7 @@ const UnknownEndpoint = (req, res) => {
 app.use(UnknownEndpoint)
 
 const errorHandler = (err, req, res, next) => {
+    if (err.name === "ValidationError") return res.status(400).json({ status: "error", message: `Invalid Data : ${err.message}` })
     return res.status(500).json({ status: "error", message: `Server error : ${err.message}` })
 }
 app.use(errorHandler)
