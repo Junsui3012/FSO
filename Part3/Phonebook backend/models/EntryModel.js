@@ -1,4 +1,4 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose'
 
 // using the --env-file=.env flag in npm start, so dotenv was skipped
 const USERNAME = process.env.MONGODB_USERNAME
@@ -9,37 +9,37 @@ const URI = `mongodb+srv://${USERNAME}:${PASSWORD}@cluster0.dquxruz.mongodb.net/
 mongoose.set('strictQuery', false)
 
 mongoose.set('toJSON', {
-    virtuals: true,
-    versionKey: false,
-    transform: (doc, ret) => {
-        delete ret._id
-        return ret
-    }
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret._id
+    return ret
+  }
 })
 
-mongoose.connect(URI, { family: 4 })
-    .then(result => {
-        console.log("MongoDB connected successfully")
-    })
-    .catch(err => {
-        console.log("Failed to connect to MongoDB :", err.message)
-    })
+mongoose.connect(URI, {family: 4})
+  .then(result => {
+    console.log('MongoDB connected successfully', result.connection.name)
+  })
+  .catch(err => {
+    console.log('Failed to connect to MongoDB :', err.message)
+  })
 
 const entrySchema = new mongoose.Schema({
-    name: {
-        type: String,
-        minLength: 3,
-        required: true,
-    },
-    number: {
-        type: String,
-        required: true,
-        validate: {
-            validator: (v) => (/\+\d{2}-\d{10}/.test(v)),
-            message: props => `${props.value} is not a valid phone number`,
-        }
-    },
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    required: true,
+    validate: {
+      validator: (v) => (/\+\d{2}-\d{10}/.test(v)),
+      message: props => `${props.value} is not a valid phone number`,
+    }
+  },
 })
 
-const Entry = mongoose.model("Entry", entrySchema)
+const Entry = mongoose.model('Entry', entrySchema)
 export default Entry
