@@ -19,6 +19,14 @@ mongoose.connect(MONGO_URI, { family: 4 })
     console.log(`Connection to MongoDB failed: ${err.message}`)
   })
 
+/**
+ * @typedef {Object} BlogFields
+ * @property {String} title
+ * @property {String} author
+ * @property {String} url
+ * @property {Number} likes
+ */
+
 const BlogSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -29,7 +37,13 @@ const BlogSchema = new mongoose.Schema({
   author: {
     type: String,
     required: true,
+    minLength: 1,
     maxLength: 20,
+    validate: {
+      validator: v => /^[a-zA-Z\s.'-]+$/.test(v),
+      message: props => `${props.value} is not a valid author name`,
+    },
+    set: v => v.toLowerCase().replace(/\b\w/g, char => char.toUpperCase())
   },
   url: {
     type: String,
@@ -51,4 +65,5 @@ const BlogSchema = new mongoose.Schema({
   },
 })
 
+/**@type {mongoose.Model<mongoose.Document & BlogFields>} */
 export default mongoose.model('BlogPost', BlogSchema)
