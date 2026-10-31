@@ -16,7 +16,7 @@ beforeEach(async () => {
     // await Promise.all(promises)
 })
 
-describe.only("The API header", () => {
+describe("The API header", () => {
     it("has json content type for main route", async (t) => {
         t.diagnostic("getting data from server")
         await api.get('/api/blogs')
@@ -55,7 +55,7 @@ describe.only("The API header", () => {
 
 })
 
-describe.only("The body of the response", () => {
+describe("The body of the response", () => {
     it("is the same for any random record", async (t) => {
         const random_index = Math.floor(Math.random() * initial_data.length)
         const db_data = await get_documents()
@@ -98,7 +98,7 @@ describe.only("The body of the response", () => {
     })
 })
 
-describe.only("The likes", () => {
+describe("The likes", () => {
     it("increment by 1", async (t) => {
         const random_index = Math.floor(Math.random() * initial_data.length)
         const random_data = (await get_documents())[random_index]
@@ -124,7 +124,7 @@ describe.only("The likes", () => {
     })
 })
 
-describe.only("The upation of a random document", () => {
+describe("The upation of a random document", () => {
     it("succeds for partial change", async (t) => {
         const random_index = Math.floor(Math.random() * initial_data.length)
         const db_data = await get_documents()
@@ -175,7 +175,7 @@ describe.only("The upation of a random document", () => {
 
 })
 
-describe.only("The deletion of a random document", () => {
+describe("The deletion of a random document", () => {
     it("successfully removes the correct record", async (t) => {
         const before_delete = await get_documents()
         const random_index = Math.floor(Math.random() * before_delete.length)
