@@ -1,21 +1,20 @@
 import express from 'express'
 import { cout, errobj } from '../utils/logger.js'
-import Blog from '../models/BlogModel.js'
-import mongoose from 'mongoose'
 import BlogModel from '../models/BlogModel.js'
+import mongoose from 'mongoose'
 
 const BlogRouter = express.Router()
 
 BlogRouter.param('id', async (req, res, next, id) => {
   if (!mongoose.isValidObjectId(id)) return res.status(400).json(errobj('error', 'Invalid ID'))
-  const doc = await Blog.findById(id)
+  const doc = await BlogModel.findById(id).populate("user")
   if (!doc) return res.status(404).json(errobj('error', 'No records found'))
   req.data = doc
   next()
 })
 
 BlogRouter.get('/', async (req, res) => {
-  const data = await Blog.find({})
+  const data = await BlogModel.find({}).populate("user")
   return res.json(data)
 })
 
@@ -26,10 +25,11 @@ BlogRouter.get('/:id', async (req, res) => {
 
 BlogRouter.post('/', async (req, res) => {
   const data = req.body
-  const newPost = new Blog({
+  const newPost = new BlogModel({
     title: data?.title,
     author: data?.author,
     url: data?.url,
+    user: data?.user,
   })
 
   await newPost.save()

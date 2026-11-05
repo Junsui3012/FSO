@@ -5,15 +5,18 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "set NODE_ENV=test && node --env-file=.env --test",
+    "test": "set NODE_ENV=test && node --env-file=.env --test --test-concurrency=1",
     "test:only": "npm test -- --test-only",
-    "start": "set NODE_ENV=dev && node --watch --env-file=.env index.js"
+    "start": "set NODE_ENV=dev && node --watch --env-file=.env index.js",
+    "start:test": "set NODE_ENV=test && node --watch --env-file=.env index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.2",
     "morgan": "^1.12.1"
   },

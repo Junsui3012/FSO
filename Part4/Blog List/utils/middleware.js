@@ -8,9 +8,23 @@ const unknownEndpoint = (req, res) => {
         <p>Please check the address again</p>`)
 }
 
-const errorHandler = (err, req, res, next) => {
-  if (err.name === 'ValidationError') return res.status(400).json(errobj('error', `Incorrect data: ${err.message}`))
-  return res.status(500).json(errobj('error', `Server error: ${err.message}`))
+const errorHandler = (err, req, res, _next) => {
+  let code = 500
+  let message
+
+  if (err.code === 11000) {
+    code = 409
+    message = `Conflict of data: ${err.message}`
+  }
+  if (err.name === 'ValidationError') {
+    code = 400
+    message = `Incorrect data: ${err.message}`
+  }
+  else {
+    message = `Server error: ${err.message}`
+  }
+
+  return res.status(code).json(errobj('error', message))
 }
 
 export {

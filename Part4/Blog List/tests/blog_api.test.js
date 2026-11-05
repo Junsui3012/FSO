@@ -4,19 +4,19 @@ import app from "../app.js"
 import mongoose from "mongoose"
 import BlogModel from "../models/BlogModel.js"
 import supertest from "supertest"
-import { initial_data, get_documents } from "../utils/api_test_helper.js"
+import { initial_blog_data, get_blogs } from "../utils/api_test_helper.js"
 
 const api = supertest(app)
 
 beforeEach(async () => {
     await BlogModel.deleteMany({})
-    await BlogModel.insertMany(initial_data)
+    await BlogModel.insertMany(initial_blog_data)
     // const data = initial_data.map(v => new BlogModel(v))
     // const promises = data.map(v => v.save())
     // await Promise.all(promises)
 })
 
-describe("The API header", () => {
+describe("The API header of blog post", () => {
     it("has json content type for main route", async (t) => {
         t.diagnostic("getting data from server")
         await api.get('/api/blogs')
@@ -26,8 +26,8 @@ describe("The API header", () => {
     })
 
     it("has json content type for random specific record", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const db_data = await get_documents()
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const db_data = await get_blogs()
         const random_data = db_data[random_index]
         const data_id = random_data.id
         t.diagnostic(`The ID is ${data_id}`)
@@ -55,11 +55,14 @@ describe("The API header", () => {
 
 })
 
-describe("The body of the response", () => {
+describe("The body of the blog post response", () => {
     it("is the same for any random record", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const db_data = await get_documents()
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        console.log("r index", random_index)
+        const db_data = await get_blogs()
+        console.log("db_data", db_data)
         const random_data = db_data[random_index]
+        console.log("chosen data", random_data)
         const data_id = random_data.id
         t.diagnostic(`The ID is ${data_id}`)
 
@@ -74,21 +77,24 @@ describe("The body of the response", () => {
         const newRecord = {
             title: "JavaScript something something",
             author: "Axel rAuChMaYeR",
-            url: "https://2ality.com/"
+            url: "https://2ality.com/",
+            user: "6ae5990f0b91826cbb582688",
         }
         const response = await api.post('/api/blogs')
             .send(newRecord)
             .expect(201)
-        const databaseAfter = await get_documents()
-
+        const databaseAfter = await get_blogs()
+        console.log("after data", JSON.stringify(databaseAfter), databaseAfter.length)
+        console.log("fetched data", JSON.stringify(response.body), response.body.length)
         assert.strictEqual(response.body.author, "Axel Rauchmayer")
-        assert.strictEqual(databaseAfter.length, initial_data.length + 1)
+        assert.strictEqual(databaseAfter.length, initial_blog_data.length + 1)
     })
     it("throws for invalid name", async (t) => {
         const newRecord = {
             title: "JavaScript something something",
             author: "Ax-gh)(",
-            url: "https://2ality.com/"
+            url: "https://2ality.com/",
+            user: "6ae5990f0b91826cbb582688",
         }
         const response = await api.post('/api/blogs')
             .send(newRecord)
@@ -98,10 +104,10 @@ describe("The body of the response", () => {
     })
 })
 
-describe("The likes", () => {
+describe("The likes of a blog post", () => {
     it("increment by 1", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const random_data = (await get_documents())[random_index]
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const random_data = (await get_blogs())[random_index]
         const data_id = random_data.id
 
         const response = await api.post(`/api/blogs/${data_id}/like`)
@@ -112,8 +118,8 @@ describe("The likes", () => {
     })
 
     it("decrement by 1", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const random_data = (await get_documents())[random_index]
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const random_data = (await get_blogs())[random_index]
         const data_id = random_data.id
 
         const response = await api.post(`/api/blogs/${data_id}/unlike`)
@@ -124,10 +130,10 @@ describe("The likes", () => {
     })
 })
 
-describe("The upation of a random document", () => {
+describe("The upation of a random blog", () => {
     it("succeds for partial change", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const db_data = await get_documents()
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const db_data = await get_blogs()
         const random_data = db_data[random_index]
         const data_id = random_data.id
         t.diagnostic(`The ID is ${data_id}`)
@@ -142,8 +148,8 @@ describe("The upation of a random document", () => {
         assert.deepStrictEqual(response.body, random_data)
     })
     it("automatically fixes broken names", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const db_data = await get_documents()
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const db_data = await get_blogs()
         const random_data = db_data[random_index]
         const data_id = random_data.id
         t.diagnostic(`The ID is ${data_id}`)
@@ -159,14 +165,14 @@ describe("The upation of a random document", () => {
         assert.deepStrictEqual(response.body, random_data)
     })
     it("throws for invalid name", async (t) => {
-        const random_index = Math.floor(Math.random() * initial_data.length)
-        const db_data = await get_documents()
+        const random_index = Math.floor(Math.random() * initial_blog_data.length)
+        const db_data = await get_blogs()
         const random_data = db_data[random_index]
         const data_id = random_data.id
         t.diagnostic(`The ID is ${data_id}`)
 
         random_data.author = "Ax-gh)("
-        const response = await api.post('/api/blogs')
+        const response = await api.patch(`/api/blogs/${data_id}`)
             .send(random_data)
             .expect(400)
 
@@ -175,9 +181,9 @@ describe("The upation of a random document", () => {
 
 })
 
-describe("The deletion of a random document", () => {
+describe("The deletion of a random blog", () => {
     it("successfully removes the correct record", async (t) => {
-        const before_delete = await get_documents()
+        const before_delete = await get_blogs()
         const random_index = Math.floor(Math.random() * before_delete.length)
         const random_data = before_delete[random_index]
         const data_id = random_data.id
@@ -187,7 +193,7 @@ describe("The deletion of a random document", () => {
         await api.delete(`/api/blogs/${data_id}`)
             .expect(204)
 
-        const after_delete = await get_documents()
+        const after_delete = await get_blogs()
         const filtered_original = before_delete.filter(v => v.id !== data_id)
 
         assert.deepStrictEqual(after_delete, filtered_original)

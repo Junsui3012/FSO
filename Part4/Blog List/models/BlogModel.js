@@ -2,14 +2,6 @@ import mongoose from 'mongoose'
 import { MONGO_URI } from '../utils/config.js'
 
 mongoose.set('strictQuery', false)
-mongoose.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-  transform: (doc, ret) => {
-    delete ret._id
-    return ret
-  },
-})
 
 mongoose.connect(MONGO_URI, { family: 4 })
   .then((result) => {
@@ -25,7 +17,8 @@ mongoose.connect(MONGO_URI, { family: 4 })
  * @property {String} author
  * @property {String} url
  * @property {Number} likes
- */
+ * @property {mongoose.Schema.Types.ObjectId} user
+*/
 
 const BlogSchema = new mongoose.Schema({
   title: {
@@ -63,7 +56,23 @@ const BlogSchema = new mongoose.Schema({
       message: props => `${props.value} is not a whole number`,
     },
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+})
+
+BlogSchema.set('toJSON', {
+  virtuals: true,
+  versionKey: false,
+  transform: (doc, ret) => {
+    delete ret._id
+    ret.user = JSON.stringify(ret.user)
+    return ret
+  },
 })
 
 /**@type {mongoose.Model<mongoose.Document & BlogFields>} */
-export default mongoose.model('BlogPost', BlogSchema)
+const BlogModel = mongoose.model('BlogPost', BlogSchema)
+export default BlogModel
